@@ -32,24 +32,27 @@ app.get('/', (req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
-const PORT = process.env.PORT || 5000;
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  const startServer = async () => {
+    try {
+      await connectDB();
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error('Failed to start server:', error.message);
+      process.exit(1);
+    }
+  };
+  startServer();
+}
 
-// Connect to MongoDB and start server
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error.message);
-    process.exit(1);
-  }
-};
-
-startServer();
+// Export for Vercel
+module.exports = app;
