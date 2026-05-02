@@ -10,26 +10,8 @@ const app = express();
 // Initialize DB connection
 connectDB();
 
-// Middleware - CORS with proper configuration
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'https://hospital-management-99ih.vercel.app',
-      'https://hospital-management-99ih-git-main-vinay-kushwaha5220s-projects.vercel.app'
-    ];
-    
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, true); // Allow all for now to debug
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
+// CORS - Allow all origins for Vercel
+app.use(cors());
 app.use(express.json());
 
 // Routes
@@ -44,8 +26,12 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hospital Management API is running' });
 });
 
+app.get('/api', (req, res) => {
+  res.json({ message: 'Hospital Management API - /api endpoint' });
+});
+
 // Global error handler
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
