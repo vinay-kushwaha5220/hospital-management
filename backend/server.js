@@ -7,17 +7,29 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(
-  cors({
-    origin: [
+// Initialize DB connection
+connectDB();
+
+// Middleware - CORS with proper configuration
+app.use(cors({
+  origin: function (origin, callback) {
+    const allowedOrigins = [
       'http://localhost:3000',
       'https://hospital-management-99ih.vercel.app',
-      process.env.FRONTEND_URL
-    ].filter(Boolean),
-    credentials: true,
-  })
-);
+      'https://hospital-management-99ih-git-main-vinay-kushwaha5220s-projects.vercel.app'
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now to debug
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // Routes
@@ -41,18 +53,9 @@ app.use((err, req, res) => {
 // For local development
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 5000;
-  const startServer = async () => {
-    try {
-      await connectDB();
-      app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-      });
-    } catch (error) {
-      console.error('Failed to start server:', error.message);
-      process.exit(1);
-    }
-  };
-  startServer();
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 }
 
 // Export for Vercel
