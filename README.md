@@ -2,6 +2,14 @@
 
 Full-stack hospital management system with React + Node.js + MongoDB.
 
+## 🔐 Admin Login
+
+**Default Admin Credentials:**
+```
+Email: admin@hospital.com
+Password: admin123456
+```
+
 ## Features
 
 - **Admin Role** — Dashboard, manage doctors, patients, appointments

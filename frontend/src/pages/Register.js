@@ -76,32 +76,23 @@ const Register = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">I am a</label>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { value: 'patient', label: '🧑‍⚕️ Patient', desc: 'Book appointments' },
-                { value: 'doctor', label: '👨‍⚕️ Doctor', desc: 'Treat patients' },
-                { value: 'admin', label: '👔 Admin', desc: 'Manage hospital' },
-              ].map(({ value, label, desc }) => (
-                <label
-                  key={value}
-                  className={`flex flex-col items-center p-3 border-2 rounded-xl cursor-pointer transition-colors ${
-                    form.role === value
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="role"
-                    value={value}
-                    checked={form.role === value}
-                    onChange={handleChange}
-                    className="sr-only"
-                  />
-                  <span className="text-sm font-medium text-gray-900">{label}</span>
-                  <span className="text-xs text-gray-500 mt-0.5">{desc}</span>
-                </label>
-              ))}
+            <div className="grid grid-cols-1 gap-3">
+              <label
+                className="flex items-center justify-center p-4 border-2 border-blue-500 bg-blue-50 rounded-xl cursor-pointer"
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value="patient"
+                  checked={true}
+                  onChange={handleChange}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <span className="text-lg font-medium text-gray-900">🧑‍⚕️ Patient</span>
+                  <p className="text-sm text-gray-500 mt-1">Book appointments with doctors</p>
+                </div>
+              </label>
             </div>
           </div>
 
