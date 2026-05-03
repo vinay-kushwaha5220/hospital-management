@@ -29,6 +29,11 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    symptoms: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   { timestamps: true }
 );

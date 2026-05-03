@@ -123,12 +123,32 @@ const verifyOTP = async (req, res) => {
       }
     }
 
+    // Auto-create doctor profile if role is admin (doctor)
+    let doctorId = null;
+    if (user.role === 'admin') {
+      const Doctor = require('../models/Doctor');
+      const existing = await Doctor.findOne({ userId: user._id });
+      if (!existing) {
+        const newDoctor = await Doctor.create({
+          userId: user._id,
+          name: user.name,
+          email: user.email,
+          phone: '',
+          specialization: 'General',
+        });
+        doctorId = newDoctor._id;
+      } else {
+        doctorId = existing._id;
+      }
+    }
+
     res.status(200).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       patientId,
+      doctorId,
       token: generateToken(user._id),
       message: 'Email verified successfully! Welcome.',
     });
@@ -205,12 +225,21 @@ const login = async (req, res) => {
       patientId = patientProfile?._id || null;
     }
 
+    // Attach doctorId if role is admin (doctor)
+    let doctorId = null;
+    if (user.role === 'admin') {
+      const Doctor = require('../models/Doctor');
+      const doctorProfile = await Doctor.findOne({ userId: user._id });
+      doctorId = doctorProfile?._id || null;
+    }
+
     res.json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       patientId,
+      doctorId,
       token: generateToken(user._id),
     });
   } catch (error) {

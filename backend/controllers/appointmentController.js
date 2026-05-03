@@ -1,20 +1,31 @@
 const Appointment = require('../models/Appointment');
 
-// @desc    Get all appointments (with filters)
+// @desc    Get all appointments (with filters + role-based)
 // @route   GET /api/appointments
 // @access  Private
 const getAppointments = async (req, res) => {
   try {
-    const { date, doctor, status } = req.query;
+    const { date, doctor, status, patient } = req.query;
     const filter = {};
 
     if (date) filter.date = date;
     if (doctor) filter.doctor = doctor;
     if (status) filter.status = status;
+    if (patient) filter.patient = patient;
+
+    // If user is a doctor (admin role), show only their appointments
+    if (req.user.role === 'admin' && req.user.doctorId) {
+      filter.doctor = req.user.doctorId;
+    }
+
+    // If user is a patient, show only their appointments
+    if (req.user.role === 'patient' && req.user.patientId) {
+      filter.patient = req.user.patientId;
+    }
 
     const appointments = await Appointment.find(filter)
-      .populate('patient', 'name phone')
-      .populate('doctor', 'name specialization')
+      .populate('patient', 'name phone age gender symptoms')
+      .populate('doctor', 'name specialization phone')
       .sort({ date: -1, time: -1 });
 
     res.json(appointments);
@@ -44,12 +55,12 @@ const getAppointmentById = async (req, res) => {
 // @access  Private
 const createAppointment = async (req, res) => {
   try {
-    const { patient, doctor, date, time, notes } = req.body;
-    const appointment = await Appointment.create({ patient, doctor, date, time, notes });
+    const { patient, doctor, date, time, notes, symptoms } = req.body;
+    const appointment = await Appointment.create({ patient, doctor, date, time, notes, symptoms });
 
     const populated = await appointment.populate([
-      { path: 'patient', select: 'name phone' },
-      { path: 'doctor', select: 'name specialization' },
+      { path: 'patient', select: 'name phone age gender symptoms' },
+      { path: 'doctor', select: 'name specialization phone' },
     ]);
 
     res.status(201).json(populated);

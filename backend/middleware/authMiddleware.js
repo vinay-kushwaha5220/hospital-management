@@ -10,6 +10,21 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.id).select('-password');
+      
+      // Attach patientId if patient role
+      if (req.user.role === 'patient') {
+        const Patient = require('../models/Patient');
+        const patientProfile = await Patient.findOne({ userId: req.user._id });
+        req.user.patientId = patientProfile?._id || null;
+      }
+      
+      // Attach doctorId if admin role (doctor)
+      if (req.user.role === 'admin') {
+        const Doctor = require('../models/Doctor');
+        const doctorProfile = await Doctor.findOne({ userId: req.user._id });
+        req.user.doctorId = doctorProfile?._id || null;
+      }
+      
       next();
     } catch (error) {
       return res.status(401).json({ message: 'Not authorized, token failed' });
