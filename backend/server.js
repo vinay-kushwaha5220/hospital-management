@@ -30,6 +30,26 @@ app.get('/api', (req, res) => {
   res.json({ message: 'Hospital Management API - /api endpoint' });
 });
 
+// Test admin endpoint
+app.get('/api/test-admin', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    const admin = await User.findOne({ email: 'admin@hospital.com' });
+    if (!admin) {
+      return res.json({ found: false, message: 'Admin not found in database' });
+    }
+    res.json({
+      found: true,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      isVerified: admin.isVerified,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
