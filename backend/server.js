@@ -33,8 +33,15 @@ app.get('/api', (req, res) => {
 // Test admin endpoint
 app.get('/api/test-admin', async (req, res) => {
   try {
+    const mongoose = require('mongoose');
     const User = require('./models/User');
-    const dbName = require('mongoose').connection.db.databaseName;
+    
+    // Check if connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.json({ error: 'Database not connected', readyState: mongoose.connection.readyState });
+    }
+    
+    const dbName = mongoose.connection.db ? mongoose.connection.db.databaseName : 'unknown';
     const admin = await User.findOne({ email: 'admin@hospital.com' });
     const allUsers = await User.countDocuments();
     
@@ -56,7 +63,7 @@ app.get('/api/test-admin', async (req, res) => {
       totalUsers: allUsers,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message, stack: error.stack });
   }
 });
 
