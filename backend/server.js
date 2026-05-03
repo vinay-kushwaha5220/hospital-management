@@ -71,30 +71,30 @@ app.get('/api/test-admin', async (req, res) => {
 app.post('/api/create-admin-now', async (req, res) => {
   try {
     const User = require('./models/User');
-    const bcrypt = require('bcryptjs');
     
     // Check if admin exists
     const existing = await User.findOne({ email: 'admin@hospital.com' });
     if (existing) {
-      // Update existing
-      existing.password = await bcrypt.hash('admin123456', 10);
-      existing.role = 'admin';
-      existing.isVerified = true;
-      await existing.save();
-      return res.json({ message: 'Admin updated', email: 'admin@hospital.com' });
+      // Delete and recreate to avoid double hashing
+      await User.deleteOne({ email: 'admin@hospital.com' });
     }
     
-    // Create new
-    const hashedPassword = await bcrypt.hash('admin123456', 10);
-    await User.create({
+    // Create new admin (password will be hashed by pre-save hook)
+    const admin = new User({
       name: 'Hospital Admin',
       email: 'admin@hospital.com',
-      password: hashedPassword,
+      password: 'admin123456', // Will be hashed by model
       role: 'admin',
       isVerified: true,
     });
+    await admin.save();
     
-    res.json({ message: 'Admin created successfully', email: 'admin@hospital.com', password: 'admin123456' });
+    res.json({ 
+      message: 'Admin created successfully', 
+      email: 'admin@hospital.com', 
+      password: 'admin123456',
+      note: 'Password is hashed in database'
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
