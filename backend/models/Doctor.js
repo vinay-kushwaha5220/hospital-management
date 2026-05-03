@@ -20,15 +20,14 @@ const doctorSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, 'Phone number is required'],
       trim: true,
+      default: '',
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
-      unique: true,
       lowercase: true,
       trim: true,
+      default: '',
     },
     isActive: {
       type: Boolean,
