@@ -6,10 +6,12 @@ const {
   createAppointment,
   updateAppointment,
   deleteAppointment,
+  getDoctorStats,
 } = require('../controllers/appointmentController');
-const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { protect, adminOnly, doctorOnly } = require('../middleware/authMiddleware');
 
 router.route('/').get(protect, getAppointments).post(protect, createAppointment);
+router.get('/doctor/stats', protect, doctorOnly, getDoctorStats);
 router
   .route('/:id')
   .get(protect, getAppointmentById)

@@ -9,18 +9,19 @@ const getAppointments = async (req, res) => {
     const filter = {};
 
     if (date) filter.date = date;
-    if (doctor) filter.doctor = doctor;
     if (status) filter.status = status;
-    if (patient) filter.patient = patient;
 
-    // If user is a doctor (admin role), show only their appointments
-    if (req.user.role === 'admin' && req.user.doctorId) {
+    // Role-based filtering
+    if (req.user.role === 'doctor' && req.user.doctorId) {
+      // Doctor sees only their appointments
       filter.doctor = req.user.doctorId;
-    }
-
-    // If user is a patient, show only their appointments
-    if (req.user.role === 'patient' && req.user.patientId) {
+    } else if (req.user.role === 'patient' && req.user.patientId) {
+      // Patient sees only their appointments
       filter.patient = req.user.patientId;
+    } else if (req.user.role === 'admin') {
+      // Admin sees all appointments (can filter by doctor/patient)
+      if (doctor) filter.doctor = doctor;
+      if (patient) filter.patient = patient;
     }
 
     const appointments = await Appointment.find(filter)
@@ -101,10 +102,52 @@ const deleteAppointment = async (req, res) => {
   }
 };
 
+// @desc    Get doctor statistics (total patients treated, today's appointments)
+// @route   GET /api/appointments/doctor/stats
+// @access  Private/Doctor
+const getDoctorStats = async (req, res) => {
+  try {
+    if (!req.user.doctorId) {
+      return res.status(400).json({ message: 'Doctor profile not found' });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    // Total patients treated (confirmed appointments)
+    const totalPatients = await Appointment.countDocuments({
+      doctor: req.user.doctorId,
+      status: 'Confirmed',
+    });
+
+    // Today's appointments
+    const todayAppointments = await Appointment.find({
+      doctor: req.user.doctorId,
+      date: today,
+    })
+      .populate('patient', 'name phone age gender symptoms')
+      .sort({ time: 1 });
+
+    // Pending appointments
+    const pendingCount = await Appointment.countDocuments({
+      doctor: req.user.doctorId,
+      status: 'Pending',
+    });
+
+    res.json({
+      totalPatients,
+      todayAppointments,
+      pendingCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getAppointments,
   getAppointmentById,
   createAppointment,
   updateAppointment,
   deleteAppointment,
+  getDoctorStats,
 };

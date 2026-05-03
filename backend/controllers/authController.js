@@ -123,9 +123,9 @@ const verifyOTP = async (req, res) => {
       }
     }
 
-    // Auto-create doctor profile if role is admin (doctor)
+    // Auto-create doctor profile if role is doctor
     let doctorId = null;
-    if (user.role === 'admin') {
+    if (user.role === 'doctor') {
       const Doctor = require('../models/Doctor');
       const existing = await Doctor.findOne({ userId: user._id });
       if (!existing) {
@@ -225,9 +225,9 @@ const login = async (req, res) => {
       patientId = patientProfile?._id || null;
     }
 
-    // Attach doctorId if role is admin (doctor)
+    // Attach doctorId if role is doctor
     let doctorId = null;
-    if (user.role === 'admin') {
+    if (user.role === 'doctor') {
       const Doctor = require('../models/Doctor');
       const doctorProfile = await Doctor.findOne({ userId: user._id });
       doctorId = doctorProfile?._id || null;

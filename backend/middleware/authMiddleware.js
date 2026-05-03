@@ -18,8 +18,8 @@ const protect = async (req, res, next) => {
         req.user.patientId = patientProfile?._id || null;
       }
       
-      // Attach doctorId if admin role (doctor)
-      if (req.user.role === 'admin') {
+      // Attach doctorId if doctor role
+      if (req.user.role === 'doctor') {
         const Doctor = require('../models/Doctor');
         const doctorProfile = await Doctor.findOne({ userId: req.user._id });
         req.user.doctorId = doctorProfile?._id || null;
@@ -45,4 +45,22 @@ const adminOnly = (req, res, next) => {
   }
 };
 
-module.exports = { protect, adminOnly };
+// Doctor only access
+const doctorOnly = (req, res, next) => {
+  if (req.user && req.user.role === 'doctor') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Doctors only.' });
+  }
+};
+
+// Admin or Doctor access
+const adminOrDoctor = (req, res, next) => {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'doctor')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Admins or Doctors only.' });
+  }
+};
+
+module.exports = { protect, adminOnly, doctorOnly, adminOrDoctor };
