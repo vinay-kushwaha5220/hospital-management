@@ -67,6 +67,39 @@ app.get('/api/test-admin', async (req, res) => {
   }
 });
 
+// Create admin endpoint (temporary - remove after use)
+app.post('/api/create-admin-now', async (req, res) => {
+  try {
+    const User = require('./models/User');
+    const bcrypt = require('bcryptjs');
+    
+    // Check if admin exists
+    const existing = await User.findOne({ email: 'admin@hospital.com' });
+    if (existing) {
+      // Update existing
+      existing.password = await bcrypt.hash('admin123456', 10);
+      existing.role = 'admin';
+      existing.isVerified = true;
+      await existing.save();
+      return res.json({ message: 'Admin updated', email: 'admin@hospital.com' });
+    }
+    
+    // Create new
+    const hashedPassword = await bcrypt.hash('admin123456', 10);
+    await User.create({
+      name: 'Hospital Admin',
+      email: 'admin@hospital.com',
+      password: hashedPassword,
+      role: 'admin',
+      isVerified: true,
+    });
+    
+    res.json({ message: 'Admin created successfully', email: 'admin@hospital.com', password: 'admin123456' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
