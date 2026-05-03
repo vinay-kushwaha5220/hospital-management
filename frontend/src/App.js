@@ -10,15 +10,17 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
+import DoctorDashboard from './pages/DoctorDashboard';
 import Doctors from './pages/Doctors';
 import Patients from './pages/Patients';
 import Appointments from './pages/Appointments';
 
 // Protected route wrapper
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedRoute = ({ children, adminOnly = false, doctorOnly = false }) => {
   const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   if (adminOnly && user.role !== 'admin') return <Navigate to="/appointments" replace />;
+  if (doctorOnly && user.role !== 'doctor') return <Navigate to="/appointments" replace />;
   return children;
 };
 
@@ -46,6 +48,8 @@ function AppRoutes() {
           element={
             user?.role === 'admin' ? (
               <Navigate to="/dashboard" replace />
+            ) : user?.role === 'doctor' ? (
+              <Navigate to="/doctor-dashboard" replace />
             ) : (
               <Navigate to="/appointments" replace />
             )
@@ -56,6 +60,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute adminOnly>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="doctor-dashboard"
+          element={
+            <ProtectedRoute doctorOnly>
+              <DoctorDashboard />
             </ProtectedRoute>
           }
         />

@@ -76,10 +76,11 @@ const Register = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">I am a</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-2">
               {[
                 { value: 'patient', label: '🧑‍⚕️ Patient', desc: 'Book appointments' },
-                { value: 'admin', label: '👨‍⚕️ Doctor', desc: 'Manage hospital' },
+                { value: 'doctor', label: '👨‍⚕️ Doctor', desc: 'Treat patients' },
+                { value: 'admin', label: '👔 Admin', desc: 'Manage hospital' },
               ].map(({ value, label, desc }) => (
                 <label
                   key={value}

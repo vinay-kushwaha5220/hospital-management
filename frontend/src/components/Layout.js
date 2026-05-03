@@ -25,10 +25,15 @@ const Layout = () => {
     ...(user?.role === 'admin'
       ? [{ to: '/dashboard', label: 'Dashboard', icon: HomeIcon }]
       : []),
+    ...(user?.role === 'doctor'
+      ? [{ to: '/doctor-dashboard', label: 'Dashboard', icon: HomeIcon }]
+      : []),
     ...(user?.role === 'admin'
       ? [{ to: '/doctors', label: 'Doctors', icon: UserGroupIcon }]
       : []),
-    { to: '/patients', label: 'Patients', icon: UsersIcon },
+    ...(user?.role === 'admin'
+      ? [{ to: '/patients', label: 'Patients', icon: UsersIcon }]
+      : []),
     { to: '/appointments', label: 'Appointments', icon: CalendarDaysIcon },
   ];
 
